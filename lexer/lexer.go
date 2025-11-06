@@ -18,6 +18,29 @@ const (
 	EOF
 )
 
+func (t TokenType) String() string {
+	switch t {
+	case PLUS:
+		return "PLUS"
+	case MINUS:
+		return "MINUS"
+	case DIV:
+		return "DIV"
+	case MUL:
+		return "MUL"
+	case NUMBER:
+		return "NUMBER"
+	case LPAREN:
+		return "LPAREN"
+	case RPAREN:
+		return "RPAREN"
+	case EOF:
+		return "EOF"
+	default:
+		return fmt.Sprintf("UNKNOWN_TOKEN_TYPE(%d)", t)
+	}
+}
+
 type Token struct {
 	Value    string
 	Position int
