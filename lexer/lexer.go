@@ -3,6 +3,7 @@ package lexer
 import (
 	"bytes"
 	"fmt"
+	"unicode"
 )
 
 type TokenType int
@@ -15,6 +16,7 @@ const (
 	NUMBER
 	LPAREN
 	RPAREN
+	IDENTIFIER
 	EOF
 )
 
@@ -36,6 +38,8 @@ func (t TokenType) String() string {
 		return "RPAREN"
 	case EOF:
 		return "EOF"
+	case IDENTIFIER:
+		return "IDENTIFIER"
 	default:
 		return fmt.Sprintf("UNKNOWN_TOKEN_TYPE(%d)", t)
 	}
@@ -87,6 +91,17 @@ func (l *Lexer) parseNumber() string {
 	return buf.String()
 }
 
+func (l *Lexer) parseId() string {
+	var buf bytes.Buffer
+
+	for unicode.IsLetter(l.currentChar) {
+		buf.WriteRune(l.currentChar)
+		l.step()
+	}
+
+	return buf.String()
+}
+
 func (l *Lexer) skipWhitespaces() {
 	for l.currentChar == ' ' {
 		l.step()
@@ -98,6 +113,11 @@ func (l *Lexer) Tokenize() []Token {
 		if l.currentChar >= '0' && l.currentChar <= '9' {
 			pos := l.currentIdx
 			l.tokens = append(l.tokens, NewToken(l.parseNumber(), pos, NUMBER))
+		}
+
+		if unicode.IsLetter(l.currentChar) {
+			pos := l.currentIdx
+			l.tokens = append(l.tokens, NewToken(l.parseId(), pos, IDENTIFIER))
 		}
 
 		switch l.currentChar {

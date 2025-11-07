@@ -10,10 +10,11 @@ import (
 type Parser struct {
 	Tokens []lexer.Token
 	idx    int
+	Vars   map[string]int
 }
 
-func NewParser(tokens []lexer.Token) *Parser {
-	return &Parser{Tokens: tokens}
+func NewParser(tokens []lexer.Token, vars map[string]int) *Parser {
+	return &Parser{Tokens: tokens, Vars: vars}
 }
 
 func (p *Parser) peek() lexer.Token {
@@ -43,7 +44,7 @@ func (p *Parser) expect(expectedType lexer.TokenType) error {
 		return nil
 	}
 
-	err := fmt.Errorf("error: unexpected type; expected %d got %d", expectedType, currentTk.Type)
+	err := fmt.Errorf("error: unexpected type; expected %s got %s", expectedType.String(), currentTk.Type.String())
 
 	return err
 }
@@ -75,6 +76,17 @@ func (p *Parser) parseFactor() Node {
 
 		val, _ := strconv.Atoi(token.Value)
 		return &NumberLiteral{Token: token, Value: val}
+	}
+
+	if token.Type == lexer.IDENTIFIER {
+		p.next()
+
+		varValue, ok := p.Vars[token.Value]
+		if ok {
+			return &NumberLiteral{Token: token, Value: varValue}
+		} else {
+			panic("unexpected identifier: " + token.Value)
+		}
 	}
 
 	if token.Type == lexer.LPAREN {

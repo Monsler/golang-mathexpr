@@ -9,17 +9,20 @@ import (
 )
 
 func main() {
-	input := "(2 + 2 * 2) / 3"
+	input := "x + (x / x)"
 
 	lexer := lexer.NewLexer(input)
 
 	tokens := lexer.Tokenize()
 
 	for i, v := range tokens {
-		fmt.Printf("%d: (<%s>, %d)\n", i+1, v.Value, v.Position)
+		fmt.Printf("%d: (<%s>, %d) == %s\n", i+1, v.Value, v.Position, v.Type.String())
 	}
 
-	parser := parser.NewParser(tokens)
+	vars := make(map[string]int)
+	vars["x"] = 10
+
+	parser := parser.NewParser(tokens, vars)
 
 	tree := parser.Parse()
 
